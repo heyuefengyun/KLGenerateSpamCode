@@ -902,15 +902,28 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
         } else {
             //处理是category的情况。当是category时，修改+号后面的类名前缀
             NSString *oldNamePlus = [NSString stringWithFormat:@"+%@",oldName];
-            if ([fileName containsString:oldNamePlus]) {
-                NSMutableString *fileNameStr = [[NSMutableString alloc] initWithString:fileName];
-                [fileNameStr replaceCharactersInRange:[fileName rangeOfString:oldNamePlus] withString:[NSString stringWithFormat:@"+%@",newName]];
-                newClassName = fileNameStr;
+            if ([fileName containsString:@"+"]) {
+                ///说明类别有前缀
+                if([fileName containsString:oldNamePlus])
+                {
+                    NSMutableString *fileNameStr = [[NSMutableString alloc] initWithString:fileName];
+                    [fileNameStr replaceCharactersInRange:[fileName rangeOfString:oldNamePlus] withString:[NSString stringWithFormat:@"+%@",newName]];
+                    newClassName = fileNameStr;
+                    
+                }else{
+                    ///说明类别无前缀
+                    NSMutableString *fileNameStr = [[NSMutableString alloc] initWithString:fileName];
+                    [fileNameStr replaceCharactersInRange:[fileName rangeOfString:@"+"] withString:[NSString stringWithFormat:@"+%@",newName]];
+                    newClassName = fileNameStr;
+                }
             }else{
+                ///既不包含前缀 又非类别 增加前缀
                 newClassName = [newName stringByAppendingString:fileName];
+                //                newClassName = fileName;
+                
             }
         }
-        
+
         // 文件名 Const.ext > DDConst.ext
         if ([fileExtension isEqualToString:@"h"]) {
             NSString *mFileName = [fileName stringByAppendingPathExtension:@"m"];
