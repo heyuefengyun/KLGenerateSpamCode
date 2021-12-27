@@ -87,6 +87,42 @@ BOOL regularReplacement(NSMutableString *originalString, NSString *regularExpres
     __block BOOL isChanged = NO;
     BOOL isGroupNo1 = [newString isEqualToString:@"\\1"];
     NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:regularExpression options:NSRegularExpressionAnchorsMatchLines|NSRegularExpressionUseUnixLineSeparators error:nil];
+    if ([newString containsString:@"+"]) {
+#pragma mark - 修正分类内部的（ClassName）
+        {
+            
+           NSString *regularExpressionNew = [regularExpression stringByReplacingOccurrencesOfString:@"\\b" withString:@""];
+
+            NSString *oldExtCategroyName = [regularExpressionNew componentsSeparatedByString:@"+"].lastObject;
+            
+            NSString *newExtCategroyName = [NSString stringWithFormat:@"(%@)",[newString componentsSeparatedByString:@"+"].lastObject];
+
+            NSString * regularExpression = [NSString stringWithFormat:@"(%@)",oldExtCategroyName];
+            expression = [NSRegularExpression regularExpressionWithPattern:regularExpression options:NSRegularExpressionAnchorsMatchLines|NSRegularExpressionUseUnixLineSeparators|NSRegularExpressionIgnoreMetacharacters error:nil];
+            NSArray<NSTextCheckingResult *> *matches = [expression matchesInString:originalString options:0 range:NSMakeRange(0, originalString.length)];
+            [matches enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if (!isChanged) {
+                    isChanged = YES;
+                }
+                if (isGroupNo1) {
+                    NSString *withString = [originalString substringWithRange:[obj rangeAtIndex:1]];
+                    [originalString replaceCharactersInRange:obj.range withString:withString];
+                } else {
+                    [originalString replaceCharactersInRange:obj.range withString:newExtCategroyName];
+                }
+            }];
+        }
+        
+        
+        
+        
+        
+        
+#pragma mark - 修正+分类的正则表达式  project.pbxproj中的及#import中的分类导入
+        regularExpression = [regularExpression stringByReplacingOccurrencesOfString:@"\\b" withString:@""];
+        expression = [NSRegularExpression regularExpressionWithPattern:regularExpression options:NSRegularExpressionAnchorsMatchLines|NSRegularExpressionUseUnixLineSeparators|NSRegularExpressionIgnoreMetacharacters error:nil];
+    }
+    
     NSArray<NSTextCheckingResult *> *matches = [expression matchesInString:originalString options:0 range:NSMakeRange(0, originalString.length)];
     [matches enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (!isChanged) {
@@ -99,6 +135,8 @@ BOOL regularReplacement(NSMutableString *originalString, NSString *regularExpres
             [originalString replaceCharactersInRange:obj.range withString:newString];
         }
     }];
+    ///匹配加号扩展
+    
     return isChanged;
 }
 
