@@ -896,7 +896,6 @@ void modifyFilesClassName(NSString *sourceCodeDir, NSString *oldClassName, NSStr
         
         NSString *fileName = filePath.lastPathComponent;
         if ([fileName hasSuffix:@".h"] || [fileName hasSuffix:@".m"] || [fileName hasSuffix:@".pch"] || [fileName hasSuffix:@".swift"] || [fileName hasSuffix:@".xib"] || [fileName hasSuffix:@".storyboard"]) {
-            
             NSError *error = nil;
             NSMutableString *fileContent = [NSMutableString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
             if (error) {
@@ -935,6 +934,21 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
         NSString *fileName = filePath.lastPathComponent.stringByDeletingPathExtension;
         NSString *fileExtension = filePath.pathExtension;
         NSString *newClassName;
+        
+        if ([fileName containsString:@"+"]) {
+            NSString *newN = [fileName componentsSeparatedByString:@"+"].lastObject;
+#pragma mark - 类别已包含新前缀 不在修改
+            if ([newN hasPrefix:newName]) {
+                continue;
+            }
+            
+        }else {
+#pragma mark - 非类别已包含 新前缀不在修改
+            if ([fileName hasPrefix:newName]) {
+                continue;
+            }
+        }
+        
         if ([fileName hasPrefix:oldName]) {
             newClassName = [newName stringByAppendingString:[fileName substringFromIndex:oldName.length]];
         } else {
