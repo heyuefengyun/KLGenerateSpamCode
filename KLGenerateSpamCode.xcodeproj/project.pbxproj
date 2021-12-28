@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		24934DDF1F0CD64800958090 /* KLGenerateSpamCode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = KLGenerateSpamCode; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DE52391F3437910050B37D /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A920A028277AC7DE001B9D84 /* 注意事项.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "注意事项.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +42,7 @@
 		24934DD61F0CD64800958090 = {
 			isa = PBXGroup;
 			children = (
+				A920A028277AC7DE001B9D84 /* 注意事项.md */,
 				24DE52381F3437910050B37D /* KLGenerateSpamCode */,
 				24934DE01F0CD64800958090 /* Products */,
 			);
