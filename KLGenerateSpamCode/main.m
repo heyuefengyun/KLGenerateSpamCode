@@ -112,17 +112,10 @@ BOOL regularReplacement(NSMutableString *originalString, NSString *regularExpres
                 }
             }];
         }
-        
-        
-        
-        
-        
-        
 #pragma mark - 修正+分类的正则表达式  project.pbxproj中的及#import中的分类导入
         regularExpression = [regularExpression stringByReplacingOccurrencesOfString:@"\\b" withString:@""];
         expression = [NSRegularExpression regularExpressionWithPattern:regularExpression options:NSRegularExpressionAnchorsMatchLines|NSRegularExpressionUseUnixLineSeparators|NSRegularExpressionIgnoreMetacharacters error:nil];
     }
-    
     NSArray<NSTextCheckingResult *> *matches = [expression matchesInString:originalString options:0 range:NSMakeRange(0, originalString.length)];
     [matches enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (!isChanged) {
@@ -136,7 +129,25 @@ BOOL regularReplacement(NSMutableString *originalString, NSString *regularExpres
         }
     }];
     ///匹配加号扩展
-    
+//#pragma mark - 修正文件名和文件夹同名的问题
+//    {///正则用的不溜  替换过的重新替换回来
+//        NSString *regularExpressionNew = [regularExpression stringByReplacingOccurrencesOfString:@"\\b" withString:@""];
+//        NSString *orginPath = [NSString stringWithFormat:@"path = %@",regularExpressionNew];
+//        regularExpression = [NSString stringWithFormat:@"path = %@",newString];
+//        expression = [NSRegularExpression regularExpressionWithPattern:regularExpression options:NSRegularExpressionAnchorsMatchLines|NSRegularExpressionUseUnixLineSeparators|NSRegularExpressionIgnoreMetacharacters error:nil];
+//        NSArray<NSTextCheckingResult *> *matches = [expression matchesInString:originalString options:0 range:NSMakeRange(0, originalString.length)];
+//        [matches enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//            if (!isChanged) {
+//                isChanged = YES;
+//            }
+//            if (isGroupNo1) {
+//                NSString *withString = [originalString substringWithRange:[obj rangeAtIndex:1]];
+//                [originalString replaceCharactersInRange:obj.range withString:withString];
+//            } else {
+//                [originalString replaceCharactersInRange:obj.range withString:orginPath];
+//            }
+//        }];
+//    }
     return isChanged;
 }
 
@@ -937,14 +948,27 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
         
         if ([fileName containsString:@"+"]) {
             NSString *newN = [fileName componentsSeparatedByString:@"+"].lastObject;
-#pragma mark - 类别已包含新前缀 不在修改
-            if ([newN hasPrefix:newName]) {
+#pragma mark - 分类前后两端有一段要改则进行修改
+            bool noNeedChange = false;
+#pragma mark - 类别已包含新前缀 不在修改  不包含前缀也不修改
+            if ([newN hasPrefix:newName] || (![newN hasPrefix:oldName])) {
+                noNeedChange = true;
+                continue;
+            }
+            
+            newN = [fileName componentsSeparatedByString:@"+"].firstObject;
+#pragma mark - 类别已包含新前缀 不在修改  不包含前缀也不修改
+            if (([newN hasPrefix:newName]|| (![newN hasPrefix:oldName])) && noNeedChange) {
                 continue;
             }
             
         }else {
-#pragma mark - 非类别已包含 新前缀不在修改
+#pragma mark - 非类别已包含 新前缀不在修改  不包含旧前缀不修改
             if ([fileName hasPrefix:newName]) {
+                continue;
+            }
+            
+            if (![fileName hasPrefix:oldName]) {
                 continue;
             }
         }
@@ -969,6 +993,9 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
                     newClassName = fileNameStr;
                 }
             }else{
+#pragma mark - 此处决定是否给不包含前缀的类增加前缀 1： 一般是不应该加的 或者应该排除掉路径  2：不规范工程统一加也ok
+                
+                continue;
                 ///既不包含前缀 又非类别 增加前缀
                 newClassName = [newName stringByAppendingString:fileName];
                 //                newClassName = fileName;
